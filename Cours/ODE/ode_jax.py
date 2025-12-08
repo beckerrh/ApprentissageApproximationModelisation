@@ -27,7 +27,7 @@ def plot_bases(t_plot, phi, title="Fonctions de base"):
     plt.show()
 
 # Apprentissage
-def train(params, machine, optimizer=None, n_epochs=100, print_every=10, learning_rate=0.1, **kwargs):
+def train(params, machine, optimizer=None, n_epochs=1000, print_every=20, learning_rate=1.0, eps=1e-8, **kwargs):
     if optimizer is None: optimizer = optax.lbfgs(learning_rate=learning_rate)
    
     # Initialize optimizer state
@@ -48,6 +48,9 @@ def train(params, machine, optimizer=None, n_epochs=100, print_every=10, learnin
         params, opt_state, loss_value, grads, updates = train_step(params, opt_state, **kwargs)
         if epoch % print_every == 0:
             print(f"Epoch {epoch:7d}, Loss: {loss_value:.3e}")
+            if epoch and abs(loss_value - loss_old) < eps:
+                return params, opt_state
+            loss_old = loss_value
 
     return params, opt_state
 
@@ -57,14 +60,21 @@ class MachineODE:
     def __init__(self, layers, app):
         self.layers = layers
         self.app = app
-        key = jax.random.PRNGKey(0)
+        #key = jax.random.PRNGKey(0)
         params = []
         for l in range(1, len(layers)):
             in_dim, out_dim = layers[l-1], layers[l]
-            key, subkey = jax.random.split(key)
-            W = jax.random.normal(subkey, (out_dim, in_dim)) * jnp.sqrt(2/in_dim)
-            if l==1: b = -jnp.linspace(app.t0, app.t1, out_dim)
-            else: b = jnp.zeros(out_dim)
+            #key, subkey = jax.random.split(key)
+            #W = jax.random.normal(subkey, (out_dim, in_dim)) * jnp.sqrt(2/in_dim)
+            if l==1: 
+                b = -jnp.linspace(app.t0, app.t1, out_dim)
+                W = jnp.ones((out_dim, in_dim))
+            else: 
+                b = jnp.zeros(out_dim)
+                if in_dim == out_dim:
+                    W = jnp.eye(in_dim)
+                else:
+                    W = jnp.zeros((out_dim, in_dim))
             params.append((W,b))
         self.params = params
     def basis(self, t, params=None):
@@ -92,7 +102,7 @@ class MachineODE:
         bc_loss = (self.forward(self.app.t0, params)-self.app.u0) ** 2 
         return ode_loss + bc_loss
 
-def compute_error(app, machine, n_points=200):
+def compute_error(app, machine, n_points=2000):
     t = np.linspace(app.t0, app.t1, n_points)
     u_pred = machine.forward(t)
     u_true = app.u_true(t)
@@ -131,7 +141,7 @@ B = machine.basis(t_plot)
 n_colloc = 40
 t_colloc = jnp.linspace(app.t0, app.t1, n_colloc)
 
-machine.params, opt_state = train(machine.params, machine, learning_rate=0.1, n_epochs=400, print_every=20, t=t_colloc)
+machine.params, opt_state = train(machine.params, machine, t=t_colloc)
 
 # Visu
 u_pred = machine.forward(t_plot)
