@@ -15,8 +15,10 @@ Le parcours d'introduction comprend actuellement :
    autoévaluation rapide du niveau Python attendu ;
 2. [Introduction à JAX](Cours/Introduction/01_introduction_jax.ipynb) :
    tableaux, différentiation automatique et transformations de fonctions ;
-3. [Optimisation avec Optax](Cours/Introduction/03_optax.ipynb) :
-   deux exemples concis d'ajustement de paramètres.
+3. [Optimisation avec Optax](Cours/Introduction/02_optax.ipynb) :
+   deux exemples concis d'ajustement de paramètres ;
+4. [Machines mathématiques avec Flax NNX](Cours/Introduction/03_flax_nnx.ipynb) :
+   définition et apprentissage d'un perceptron multicouche en quelques lignes.
 
 Les répertoires **Cours/Classification**, **Cours/ODE** et
 **Cours/Exercices** contiennent des supports existants qui seront
