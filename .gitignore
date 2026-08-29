@@ -10,7 +10,7 @@ __pycache__/
 *.idea
 
 # Apple
-.DS_store
+.DS_Store
 data
 
 # C extensions

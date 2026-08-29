@@ -1,6 +1,8 @@
-# Versions testées pour le cours, mises à jour le 28 août 2026.
+# Versions testées pour le cours, mises à jour le 29 août 2026.
 jax==0.11.1
 flax==0.12.9
 optax==0.2.8
 jupyterlab
 matplotlib
+scikit-learn
+scipy==1.18.1
